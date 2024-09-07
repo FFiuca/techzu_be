@@ -3,6 +3,7 @@
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
+use App\Models\User;
 
 return new class extends Migration
 {
@@ -12,8 +13,15 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('events', function (Blueprint $table) {
-            $table->id();
-            $table->timestamps();
+            $table->char('id', 100)->primary();
+            $table->foreignIdFor(User::class)->nullable()->constrained()->onDelete('set null')->onUpdate('cascade');
+            $table->char('title', 100);
+            $table->date('event_date');
+            $table->timeTz('event_time')->nullable()->comment('in case wheater whole day or not');
+            $table->text('description')->nullable();
+            $table->char('location', 255)->nullable();
+            $table->timestampsTz();
+            $table->softDeletesTz();
         });
     }
 
