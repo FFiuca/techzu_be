@@ -15,6 +15,14 @@ class EventMember extends Model
     static public $enumRegistered = 'registered';
     static public $enumExternal = 'external';
 
+    public function scopeMemberRegistered($q){
+        return $q->where('status_member', static::$enumRegistered);
+    }
+
+    public function scopeMemberExternal($q){
+        return $q->where('status_member', static::$enumExternal);
+    }
+
     //SECTION - rel
     public function user(){
         return $this->belongsTo(User::class, 'user_id', 'id');

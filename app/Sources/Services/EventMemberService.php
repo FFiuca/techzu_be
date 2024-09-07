@@ -52,7 +52,7 @@ class EventMemberService extends EventMemberRepository{
         return true;
     }
 
-    function update(int|string $id, array $data): array|bool{
+    function update(int|string $id, array $data): Model|array|bool{
         $update = EventMember::where('id', $id)->update($data);
 
         return $update;

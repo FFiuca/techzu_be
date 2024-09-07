@@ -19,9 +19,10 @@ class EventService extends EventRepository{
         return $add;
     }
 
-    function update(int|string $id, array $data): array|bool{
+    function update(int|string $id, array $data): Model|array|bool{
         $update = Event::where('id', $id)->update($data);
-        return $update;
+
+        return Event::find($id);
     }
 
     function delete(int|string $id): bool{
