@@ -1,5 +1,6 @@
 <?php
 namespace App\Sources\Services;
+
 use App\Sources\Repositories\EventMemberRepository;
 use Exception;
 use Illuminate\Database\Eloquent\Model;

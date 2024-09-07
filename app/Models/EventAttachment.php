@@ -10,4 +10,9 @@ class EventAttachment extends Model
     use HasFactory;
 
     protected $guarded = ['id'];
+
+    //SECTION - rel
+    public function event(){
+        return $this->belongsTo(Event::class, 'event_id', 'id');
+    }
 }
