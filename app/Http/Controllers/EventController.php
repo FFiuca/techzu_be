@@ -11,6 +11,8 @@ use App\Models\EventMember;
 use App\Sources\Services\EventMemberService;
 use Exception;
 use Illuminate\Validation\ValidationException;
+use Illuminate\Support\Facades\DB;
+use App\Helpers\MainHelper;
 
 class EventController extends Controller
 {
@@ -22,9 +24,23 @@ class EventController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        //
+        $data = $request->all();
+        try{
+            $data = $this->event->get($data);
+        }catch(Exception $e){
+            return response()->json([
+                'status' => 500,
+                'data' => MainHelper::messageError($e)
+            ], 500);
+        }
+
+        return response()->json([
+            'status'=> 200,
+            'data' => $data
+        ], 200);
+
     }
 
     /**
@@ -45,9 +61,16 @@ class EventController extends Controller
         $member = $request->input('data_member');
         $reminder = $request->input('data_reminder');
         try{
-            $form = EventForm::add($data);
+            $form = EventForm::add([
+                ...$data,
+                'data_reminder' => $reminder,
+                'data_member' => $member,
+            ]);
             if($form->valid()==false)
                 throw new Exception('error');
+
+            // transaction db
+            DB::beginTransaction();
 
             $data = $this->event->add($data);
 
@@ -56,19 +79,26 @@ class EventController extends Controller
 
             // sync reminder
             (new EventReminderService($data))->add($reminder);
+
+            DB::commit();
         }catch(ValidationException $e){
             return response()->json([
                 'status' => 400,
                 'data' => $form->getMessageBag()
             ], 400);
         }catch(Exception $e){
+            DB::rollBack();
+
             return response()->json([
                 'status' => 500,
-                'data' => $e->getMessage()
+                'data' => MainHelper::messageError($e)
             ], 500);
         }
 
-        return response()->json($data, 200);
+        return response()->json([
+            'status'=> 200,
+            'data' => $data
+        ], 200);
     }
 
     /**
@@ -90,11 +120,14 @@ class EventController extends Controller
         }catch(Exception $e){
             return response()->json([
                 'status' => 500,
-                'data' => $e->getMessage()
+                'data' => MainHelper::messageError($e)
             ], 500);
         }
 
-        return response()->json($data, 200);
+        return response()->json([
+            'status'=> 200,
+            'data' => $data
+        ], 200);
     }
 
     /**
@@ -117,10 +150,14 @@ class EventController extends Controller
         try{
             $form = EventForm::update([
                 ...$data,
-                'id' => $id
+                'id' => $id,
+                'data_reminder' => $reminder,
+                'data_member' => $member,
             ]);
             if($form->valid()==false)
                 throw new Exception('error');
+
+            DB::beginTransaction();
 
             $data = $this->event->update($id, $data);
 
@@ -129,19 +166,26 @@ class EventController extends Controller
 
             // sync reminder
             (new EventReminderService($data))->add($reminder);
+
+            DB::commit();
         }catch(ValidationException $e){
             return response()->json([
                 'status' => 400,
                 'data' => $form->getMessageBag()
             ], 400);
         }catch(Exception $e){
+            DB::rollBack();
+
             return response()->json([
                 'status' => 500,
-                'data' => $e->getMessage()
+                'data' => MainHelper::messageError($e)
             ], 500);
         }
 
-        return response()->json($data, 200);
+        return response()->json([
+            'status'=> 200,
+            'data' => $data
+        ], 200);
     }
 
     /**
@@ -156,19 +200,63 @@ class EventController extends Controller
             if($form->valid()==false)
                 throw new Exception('error');
 
+            DB::beginTransaction();
+
             $data = $this->event->delete($id);
+
+            DB::commit();
         }catch(ValidationException $e){
             return response()->json([
                 'status' => 400,
                 'data' => $form->getMessageBag()
             ], 400);
         }catch(Exception $e){
+            DB::rollBack();
+
             return response()->json([
                 'status' => 500,
-                'data' => $e->getMessage()
+                'data' => MainHelper::messageError($e)
             ], 500);
         }
 
-        return response()->json($data, 200);
+        return response()->json([
+            'status'=> 200,
+            'data' => $data
+        ], 200);
+    }
+
+    public function storeBatch(Request $request){
+        $form = null;
+        $data = null;
+        try{
+            $file = $request->file('file');
+            $form = EventForm::addBatch(['file'=> $file]);
+            if($form->valid()==false)
+                throw new Exception('error');
+
+            DB::beginTransaction();
+
+            $data = $this->event->readFromExcel($file);
+            $data = $this->event->addBatch($data, 1); // user id make static due auth not config yet
+
+            DB::commit();
+        }catch(ValidationException $e){
+            return response()->json([
+                'status' => 400,
+                'data' => $form->getMessageBag()
+            ], 400);
+        }catch(Exception $e){
+            DB::rollBack();
+
+            return response()->json([
+                'status' => 500,
+                'data' => MainHelper::messageError($e)
+            ], 500);
+        }
+
+        return response()->json([
+            'status'=> 200,
+            'data' => $data
+        ], 200);
     }
 }

@@ -13,24 +13,23 @@ class EventReminderService extends EventReminderRepository{
     }
 
     function add(array $data): array|bool|Model{
-        $dataOld = collect($data)->filter(fn($e)=> isset($e->id));
-        $dataNew = collect($data)->filter(fn($e)=> isset($e->id)==false)->values()->toArray();
+        // delete first
+        $delete = EventReminder::where('event_id', $this->event->id)->delete();
+        if ($delete==false)
+            throw new Exception('Delete add reminder error');
 
-        $idDelete = $dataOld->pluck('id')->toArray();
-        $dataOld = $dataOld->values()->toArray();
+        foreach($data as $key=>$r)
+            $data[$key]['event_id'] = $this->event->id;
 
-        if(count($idDelete)>0){
-            $delete = EventReminder::whereNotIn('id', $idDelete)->delete();
-            if($delete===false)
-                throw new Exception('Delete add reminder error');
-        }
-
-        if(count($dataNew)>0){
-            foreach($dataNew as $key=>$r)
-                $dataNew[$key] = new EventReminder($r);
-
-            $insert = $this->event->eventReminder()->saveMany($dataNew);
-        }
+        $upsert = EventReminder::upsert(
+            $data,
+            [
+                'event_id',
+                'time_before'
+            ]
+        );
+        if($upsert<0)
+            throw new Exception('Upsert add reminder error');
 
         return true;
     }

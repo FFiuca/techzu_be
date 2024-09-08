@@ -33,6 +33,10 @@ class EventMemberUnitTest extends TestCase
                 'user_id' => 1,
                 'status_member'=> EventMember::$enumExternal
             ],
+            [
+                'email_external_member' => 'fkrfiuca@gmail.com',
+                'status_member'=> EventMember::$enumExternal
+            ],
         ]);
         // dump($a);
 

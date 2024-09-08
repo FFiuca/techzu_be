@@ -40,7 +40,8 @@ class Event extends Model
 
     public function eventMemberExternal(){
         return $this->hasMany(EventMember::class, 'event_id', 'id')
-                ->where('status_member', EventMember::$enumExternal);
+                ->where('status_member', EventMember::$enumExternal)
+                ->emailFilled();
     }
 
     public function eventReminder(){

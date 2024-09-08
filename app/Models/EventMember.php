@@ -23,6 +23,10 @@ class EventMember extends Model
         return $q->where('status_member', static::$enumExternal);
     }
 
+    public function scopeEmailFilled($q){
+        return $q->whereNotNull('email_external_member');
+    }
+
     //SECTION - rel
     public function user(){
         return $this->belongsTo(User::class, 'user_id', 'id');

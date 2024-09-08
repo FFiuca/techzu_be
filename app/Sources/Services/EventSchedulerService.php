@@ -28,10 +28,11 @@ class EventSchedulerService extends EventSchedulerRepository{
                 WHERE
                     NOW() BETWEEN (TIMESTAMP(e.event_date, e.event_time) - INTERVAL er.time_before SECOND)
                     AND (TIMESTAMP(e.event_date, e.event_time) - INTERVAL er.time_before SECOND + INTERVAL 60 SECOND)
+                    AND e.deleted_at is null
                 GROUP BY e.id
                 UNION
                 SELECT e.id, e.title, e.event_date,
-                    e.event_time FROM events e WHERE e.event_time is null and TIMESTAMPDIFF(SECOND, CONCAT(e.event_date, ' 00:00:00'), NOW())>=0 AND TIMESTAMPDIFF(SECOND, CONCAT(e.event_date, ' 00:01:00'), NOW())<=0 GROUP BY e.id");
+                    e.event_time FROM events e WHERE e.event_time is null AND e.deleted_at is null and TIMESTAMPDIFF(SECOND, CONCAT(e.event_date, ' 00:00:00'), NOW())>=0 AND TIMESTAMPDIFF(SECOND, CONCAT(e.event_date, ' 00:01:00'), NOW())<=0 GROUP BY e.id");
 
         // normalize
         foreach($data as $key=>$r)
@@ -46,7 +47,7 @@ class EventSchedulerService extends EventSchedulerRepository{
 
         $data = Event::with([
             'eventMemberRegistered' => fn($que) => $que->with('user'),
-            'eventMemberExternal' => fn($que) => $que->whereNotNull('email_external_member'),
+            'eventMemberExternal',
         ])
         ->whereIn('id', $events->pluck('id')->toArray())
         ->get();
