@@ -14,9 +14,7 @@ class EventReminderService extends EventReminderRepository{
 
     function add(array $data): array|bool|Model{
         // delete first
-        $delete = EventReminder::where('event_id', $this->event->id)->delete();
-        if ($delete==false)
-            throw new Exception('Delete add reminder error');
+        EventReminder::where('event_id', $this->event->id)->delete();
 
         foreach($data as $key=>$r)
             $data[$key]['event_id'] = $this->event->id;
@@ -29,7 +27,7 @@ class EventReminderService extends EventReminderRepository{
             ]
         );
         if($upsert<0)
-            throw new Exception('Upsert add reminder error');
+            throw new Exception('Upsert add reminder error '.$upsert);
 
         return true;
     }

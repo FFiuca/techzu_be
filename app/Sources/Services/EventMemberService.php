@@ -25,9 +25,7 @@ class EventMemberService extends EventMemberRepository{
                     ->toArray();
 
         // delete first
-        $delete = EventMember::where('event_id', $this->event->id)->delete();
-        if($delete===false)
-            throw new Exception('Delete insert event member error');
+        EventMember::where('event_id', $this->event->id)->delete();
 
         // add for internal first
         if(count($registered)>0){

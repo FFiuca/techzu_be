@@ -147,22 +147,22 @@ class EventService extends EventRepository{
 
     public function get(array $data): array|Collection{
         $q = new Event;
-
+        // dump($data);
         if(isset($data['date_start']))
-            $q->where('event_date', '>=', $data['date_start']);
+            $q = $q->where('event_date', '>=', $data['date_start']);
         if(isset($data['date_end']))
-            $q->where('event_date', '<=', $data['date_end']);
+            $q = $q->where('event_date', '<=', $data['date_end']);
 
         if(isset($data['page']) and $data['page']>0){
             $page = $data['page'];
             $limit = $data['limit']?? 100;
             $offset = ($page-1)*$limit;
 
-            $q->limit($limit)->offset($offset);
+            $q = $q->limit($limit)->offset($offset);
         }
 
-        $q->orderBy('created_at', 'asc');
-
+        $q = $q->orderBy('created_at', 'asc');
+        // dump($q->to);
         return $q->get();
     }
 

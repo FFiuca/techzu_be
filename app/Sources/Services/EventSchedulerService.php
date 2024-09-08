@@ -14,7 +14,28 @@ use Illuminate\Support\Facades\Mail;
 class EventSchedulerService extends EventSchedulerRepository{
     function getCurrentTrigger(): array{
         // range 1 minute for scheduler
-        $data = DB::select(" SELECT
+        // $data = DB::select(" SELECT
+        //             e.id,
+        //             e.title,
+        //             e.event_date,
+        //             e.event_time
+        //         FROM
+        //             events e
+        //         INNER JOIN
+        //             (SELECT id FROM events WHERE event_time IS NOT NULL) AS e2 ON e.id = e2.id
+        //         INNER JOIN
+        //             event_reminders er ON er.event_id = e.id
+        //         WHERE
+        //             NOW() BETWEEN (TIMESTAMP(e.event_date, e.event_time) - INTERVAL er.time_before SECOND)
+        //             AND (TIMESTAMP(e.event_date, e.event_time) - INTERVAL er.time_before SECOND + INTERVAL 60 SECOND)
+        //             AND e.deleted_at is null
+        //         GROUP BY e.id
+        //         UNION
+        //         SELECT e.id, e.title, e.event_date,
+        //             e.event_time FROM events e WHERE e.event_time is null AND e.deleted_at is null and TIMESTAMPDIFF(SECOND, CONCAT(e.event_date, ' 00:00:00'), NOW())>=0 AND TIMESTAMPDIFF(SECOND, CONCAT(e.event_date, ' 00:01:00'), NOW())<=0 GROUP BY e.id");
+
+        $now = date('Y-m-d H:i:s');
+        $query = " SELECT
                     e.id,
                     e.title,
                     e.event_date,
@@ -26,13 +47,15 @@ class EventSchedulerService extends EventSchedulerRepository{
                 INNER JOIN
                     event_reminders er ON er.event_id = e.id
                 WHERE
-                    NOW() BETWEEN (TIMESTAMP(e.event_date, e.event_time) - INTERVAL er.time_before SECOND)
+                    '{$now}' BETWEEN (TIMESTAMP(e.event_date, e.event_time) - INTERVAL er.time_before SECOND)
                     AND (TIMESTAMP(e.event_date, e.event_time) - INTERVAL er.time_before SECOND + INTERVAL 60 SECOND)
                     AND e.deleted_at is null
                 GROUP BY e.id
                 UNION
                 SELECT e.id, e.title, e.event_date,
-                    e.event_time FROM events e WHERE e.event_time is null AND e.deleted_at is null and TIMESTAMPDIFF(SECOND, CONCAT(e.event_date, ' 00:00:00'), NOW())>=0 AND TIMESTAMPDIFF(SECOND, CONCAT(e.event_date, ' 00:01:00'), NOW())<=0 GROUP BY e.id");
+                    e.event_time FROM events e WHERE e.event_time is null AND e.deleted_at is null and TIMESTAMPDIFF(SECOND, CONCAT(e.event_date, ' 00:00:00'), '{$now}')>=0 AND TIMESTAMPDIFF(SECOND, CONCAT(e.event_date, ' 00:01:00'), '{$now}')<=0 GROUP BY e.id";
+
+        $data = DB::select($query);
 
         // normalize
         foreach($data as $key=>$r)
