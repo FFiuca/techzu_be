@@ -66,8 +66,8 @@ class EventController extends Controller
                 'data_reminder' => $reminder,
                 'data_member' => $member,
             ]);
-            if($form->valid()==false)
-                throw new Exception('error');
+            if($form->fails()==true)
+                throw new ValidationException($form);
 
             // transaction db
             DB::beginTransaction();
@@ -108,8 +108,8 @@ class EventController extends Controller
     {
         try{
             $form = EventForm::detail(['id'=> $id]);
-            if($form->valid()==false)
-                throw new Exception('error');
+            if($form->fails()==true)
+                throw new ValidationException($form);
 
             $data = $this->event->detail($id);
         }catch(ValidationException $e){
@@ -154,8 +154,8 @@ class EventController extends Controller
                 'data_reminder' => $reminder,
                 'data_member' => $member,
             ]);
-            if($form->valid()==false)
-                throw new Exception('error');
+            if($form->fails()==true)
+                throw new ValidationException($form);
 
             DB::beginTransaction();
 
@@ -197,8 +197,8 @@ class EventController extends Controller
         $data = null;
         try{
             $form = EventForm::delete(['id'=> $id]);
-            if($form->valid()==false)
-                throw new Exception('error');
+            if($form->fails()==true)
+                throw new ValidationException($form);
 
             DB::beginTransaction();
 
@@ -231,8 +231,8 @@ class EventController extends Controller
         try{
             $file = $request->file('file');
             $form = EventForm::addBatch(['file'=> $file]);
-            if($form->valid()==false)
-                throw new Exception('error');
+            if($form->fails()==true)
+                throw new ValidationException($form);
 
             DB::beginTransaction();
 

@@ -9,7 +9,8 @@ use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
 
-class EventReminderMail extends Mailable implements ShouldQueue
+// if server is stable should implement shouldqueue
+class EventReminderMail extends Mailable
 {
     use Queueable, SerializesModels;
 
@@ -36,6 +37,7 @@ class EventReminderMail extends Mailable implements ShouldQueue
      */
     public function content(): Content
     {
+        // dump($this->data);
         return new Content(
             markdown: 'mail.event-reminder-mail',
             with: [

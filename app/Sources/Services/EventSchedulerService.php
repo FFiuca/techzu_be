@@ -77,12 +77,15 @@ class EventSchedulerService extends EventSchedulerRepository{
 
         // sent registered first
         foreach($data as $row){
+            $tempEvent = $row->only(['id', 'title', 'event_date', 'event_time']);
+
             foreach($row->eventMemberRegistered as $key=>$r){
-                Mail::to($r->user->email)->send(new EventReminderMail($r->only(['id', 'title'])));
+                Mail::to($r->user->email)->send(new EventReminderMail($tempEvent));
             }
 
             foreach($row->eventMemberExternal as $key=>$r){
-                Mail::to($r->email)->send(new EventReminderMail($r->only(['id', 'title'])));
+                $mail = Mail::to($r->email_external_member)->send(new EventReminderMail($tempEvent));
+                dump($mail);
             }
         }
 

@@ -5,7 +5,7 @@ use Illuminate\Support\Facades\Validator;
 class EventForm{
 
     protected static $rule = [
-        'user_id' => ['required'],
+        // 'user_id' => ['required'],
         'title' => ['required', ],
         'event_date' => ['required'],
         'event_time' => [
@@ -24,6 +24,7 @@ class EventForm{
     ];
 
     public static function add(array $data){
+        // dump(static::$rule, $data);
         return Validator::make( $data, static::$rule);
     }
 
