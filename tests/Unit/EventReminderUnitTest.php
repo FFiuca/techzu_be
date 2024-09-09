@@ -6,9 +6,13 @@ use Tests\TestCase;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use App\Sources\Services\EventReminderService;
 use App\Models\Event;
+use Illuminate\Foundation\Testing\RefreshDatabase;
 
 class EventReminderUnitTest extends TestCase
 {
+    use RefreshDatabase;
+    protected $seed = true;
+
     protected $event;
 
     function setUp(): void{

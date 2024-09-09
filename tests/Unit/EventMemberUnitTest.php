@@ -7,10 +7,12 @@ use App\Models\EventMember;
 use Tests\TestCase;
 use Illuminate\Foundation\Testing\DatabaseMigrations;
 use App\Sources\Services\EventMemberService;
+use Illuminate\Foundation\Testing\RefreshDatabase;
 
 class EventMemberUnitTest extends TestCase
 {
-    protected $seeder = true;
+    use RefreshDatabase;
+    protected $seed = true;
 
     private $event;
     public function setUp(): void{

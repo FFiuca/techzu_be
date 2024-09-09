@@ -34,7 +34,7 @@ class EventSchedulerService extends EventSchedulerRepository{
         //         SELECT e.id, e.title, e.event_date,
         //             e.event_time FROM events e WHERE e.event_time is null AND e.deleted_at is null and TIMESTAMPDIFF(SECOND, CONCAT(e.event_date, ' 00:00:00'), NOW())>=0 AND TIMESTAMPDIFF(SECOND, CONCAT(e.event_date, ' 00:01:00'), NOW())<=0 GROUP BY e.id");
 
-        $now = date('Y-m-d H:i:s');
+        $now = date('Y-m-d H:i:s'); // to prevent timezone differences -> app use +7
         $query = " SELECT
                     e.id,
                     e.title,
@@ -85,7 +85,6 @@ class EventSchedulerService extends EventSchedulerRepository{
 
             foreach($row->eventMemberExternal as $key=>$r){
                 $mail = Mail::to($r->email_external_member)->send(new EventReminderMail($tempEvent));
-                dump($mail);
             }
         }
 

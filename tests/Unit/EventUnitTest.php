@@ -15,8 +15,8 @@ use Maatwebsite\Excel\Concerns\ToArray;
 
 class EventUnitTest extends TestCase
 {
-    // use RefreshDatabase;
-    // protected $seed = true;
+    use RefreshDatabase;
+    protected $seed = true;
 
     protected $eventF = [];
     function setUp(): void{
