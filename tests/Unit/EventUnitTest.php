@@ -65,7 +65,7 @@ class EventUnitTest extends TestCase
         $this->assertTrue($a);
 
         // check
-        $receiver = EventMember::whereIn('event_id', collect($check)->pluck('id')->toArray())->get()->pluck('email_external_member')->ToArray();
+        $receiver = EventMember::whereIn('event_id', collect($check)->pluck('id')->toArray())->get()->pluck('email_external_member')->toArray();
         Mail::assertSent(EventReminderMail::class, $receiver);
 
     }
